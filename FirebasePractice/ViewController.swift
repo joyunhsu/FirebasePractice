@@ -13,7 +13,7 @@ class ViewController: UIViewController {
     lazy var db = Firestore.firestore()
     var ref: DocumentReference? = nil
     var articleRef: DocumentReference? = nil
-    var userID: String = "YrVzf2PvU2ukDsTvQOxS"
+    var userID: String = "RBHDCuxbXabY4jitJWuW"
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -101,23 +101,73 @@ class ViewController: UIViewController {
 //        }
         
         
-        let jo2Ref = db.collection("users").document("\(userID)")
+        // Update friends array in document
+//        let jo2Ref = db.collection("users").document("\(userID)")
         
-        // Atomically add a new region to the "regions" array field.
-        jo2Ref.updateData([
-            "friends": FieldValue.arrayUnion([
-                    [
-                    "id": "token2",
-                    "statusCode": 1
-                    ]
-                ])
-            ])
+        // Atomically add a new region to the "friends" array field.
+//        jo2Ref.updateData([
+//            "friends": FieldValue.arrayUnion([
+//                    [
+//                    "id": "token2",
+//                    "statusCode": 2
+//                    ]
+//                ])
+//            ])
         
-        // Atomically remove a region from the "regions" array field.
-//        washingtonRef.updateData([
-//            "regions": FieldValue.arrayRemove(["east_coast"])
+        // Atomically remove a region from the "friends" array field.
+//        jo2Ref.updateData([
+//            "friends": FieldValue.arrayRemove([
+//                    [
+//                    "id": " YrVzf2PvU2ukDsTvQOxS",
+//                    "statusCode": 1
+//                    ]
+//                ])
 //            ])
 
+        // Filter data with constraint: Get multiple documents from a collection
+//        db.collection("users").whereField("user_name", isEqualTo: "Claire")
+//            .getDocuments() { (querySnapshot, err) in
+//                if let err = err {
+//                    print("Error getting documents: \(err)")
+//                } else {
+//                    for document in querySnapshot!.documents {
+//                        print("\(document.documentID) => \(document.data())")
+//                    }
+//                }
+//        }
+        
+        
+        // Filter articles by user and tag
+        // Create a reference to the cities collection
+        let articleRef = db.collection("article")
+        
+        // Create a query against the collection.
+        articleRef
+            .whereField("article_id", isEqualTo: "Claire")
+            .whereField("article_tag", isEqualTo: "Joke").getDocuments { (querySnapshot, err) in
+                if let err = err {
+                    print("Error getting documents: \(err)")
+                } else {
+                    for document in querySnapshot!.documents {
+                        print("\(document.documentID) => \(document.data())")
+                    }
+                }
+        }
+        
+        
+        
+        // Get all documents in a collection
+//        db.collection("article").getDocuments() { (querySnapshot, err) in
+//            if let err = err {
+//                print("Error getting documents: \(err)")
+//            } else {
+//                for document in querySnapshot!.documents {
+//                    print("\(document.documentID) => \(document.data())")
+//                }
+//            }
+//        }
+        
+        
     }
 
 }
