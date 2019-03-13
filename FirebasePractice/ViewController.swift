@@ -12,21 +12,25 @@ import Firebase
 class ViewController: UIViewController {
     lazy var db = Firestore.firestore()
     var ref: DocumentReference? = nil
+    var userID: String?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
+        let timestamp = NSDate().timeIntervalSince1970
+        let myTimeInterval = TimeInterval(timestamp)
+        let time = NSDate(timeIntervalSince1970: TimeInterval(myTimeInterval))
+        
         // Add a user with a generated ID
         ref = db.collection("users").addDocument(data: [
-            "user_email": "jo@mail.com",
-            "user_name": "jo",
+            "user_email": "jo3@mail.com",
+            "user_name": "jo3",
             "friends": [
                 [
                 "id": "token1",
                 "statusCode": 1
                 ]
-                
             ]
         ]) { err in
             if let err = err {
@@ -36,14 +40,13 @@ class ViewController: UIViewController {
             }
         }
         
+        self.userID = self.ref!.documentID
         
         // Update user info with ID
 //        let usersRef = db.collection("users")
 //
-//        usersRef.document("cma5EgufnDsWMz9Hi1n5").setData([
-//            "user_email": "jo@mail.com",
-//            "user_id": 139,
-//            "user_name": "jo"
+//        usersRef.document("\(userID)").setData([
+//        "user_id": "\(userID)"
 //        ]) { err in
 //                if let err = err {
 //                    print("Error adding document: \(err)")
@@ -54,22 +57,22 @@ class ViewController: UIViewController {
         
         
         // add a new document in subcollection article
-//        ref = db.collection("users/cma5EgufnDsWMz9Hi1n5/article").addDocument(data:
-//            [
-//                "article_content": "today is the best day",
-//                "article_id": "byJo",
-//                "article_tag": "SchoolLife",
-//                "article_title": "Today",
-//                "author": "Jo",
-//                "created_time": 234
-//            ]
-//        ) { err in
-//                if let err = err {
-//                    print("Error adding document: \(err)")
-//                } else {
-//                    print("Successfully add article to user, ID: \(self.ref!.documentID)")
-//                }
-//            }
+        ref = db.collection("article").addDocument(data:
+            [
+                "article_content": "today is the best day",
+                "article_id": "byJo",
+                "article_tag": "SchoolLife",
+                "article_title": "Today",
+                "author": "\(userID)",
+                "created_time": time
+            ]
+        ) { err in
+                if let err = err {
+                    print("Error adding document: \(err)")
+                } else {
+                    print("Successfully add article to user, ID: \(self.ref!.documentID)")
+                }
+            }
         
         
         // Get all document data from collection users
