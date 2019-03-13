@@ -17,21 +17,27 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        // Add data with a new ID
-//        ref = db.collection("users").addDocument(data: [
-//            "user_email": "jo@mail.com",
-//            "user_id": 139,
-//            "user_name": "jo"
-//        ]) { err in
-//            if let err = err {
-//                print("Error adding document: \(err)")
-//            } else {
-//                print("Document added with ID: \(self.ref!.documentID)")
-//            }
-//        }
+        // Add a user with a generated ID
+        ref = db.collection("users").addDocument(data: [
+            "user_email": "jo@mail.com",
+            "user_name": "jo",
+            "friends": [
+                [
+                "id": "token1",
+                "statusCode": 1
+                ]
+                
+            ]
+        ]) { err in
+            if let err = err {
+                print("Error adding document: \(err)")
+            } else {
+                print("Document added with ID: \(self.ref!.documentID)")
+            }
+        }
         
         
-        // Update data in document
+        // Update user info with ID
 //        let usersRef = db.collection("users")
 //
 //        usersRef.document("cma5EgufnDsWMz9Hi1n5").setData([
@@ -47,26 +53,26 @@ class ViewController: UIViewController {
 //            }
         
         
-        // add article in article subcollection in user
-        ref = db.collection("users/cma5EgufnDsWMz9Hi1n5/article").addDocument(data:
-            [
-                "article_content": "today is the best day",
-                "article_id": "byJo",
-                "article_tag": "SchoolLife",
-                "article_title": "Today",
-                "author": "Jo",
-                "created_time": 234
-            ]
-        ) { err in
-                if let err = err {
-                    print("Error adding document: \(err)")
-                } else {
-                    print("Successfully add article to user, ID: \(self.ref!.documentID)")
-                }
-            }
+        // add a new document in subcollection article
+//        ref = db.collection("users/cma5EgufnDsWMz9Hi1n5/article").addDocument(data:
+//            [
+//                "article_content": "today is the best day",
+//                "article_id": "byJo",
+//                "article_tag": "SchoolLife",
+//                "article_title": "Today",
+//                "author": "Jo",
+//                "created_time": 234
+//            ]
+//        ) { err in
+//                if let err = err {
+//                    print("Error adding document: \(err)")
+//                } else {
+//                    print("Successfully add article to user, ID: \(self.ref!.documentID)")
+//                }
+//            }
         
         
-        // Get data
+        // Get all document data from collection users
 //        db.collection("users").getDocuments() { (querySnapshot, err) in
 //            if let err = err {
 //                print("Error getting documents: \(err)")
@@ -78,7 +84,7 @@ class ViewController: UIViewController {
 //        }
         
         
-        // Get certain document
+        // Get document data from particular user with ID
 //        let docRef = db.collection("users").document("cma5EgufnDsWMz9Hi1n5")
 //
 //        docRef.getDocument { (document, error) in
