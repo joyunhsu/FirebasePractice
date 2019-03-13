@@ -13,7 +13,7 @@ class ViewController: UIViewController {
     lazy var db = Firestore.firestore()
     var ref: DocumentReference? = nil
     var articleRef: DocumentReference? = nil
-    var userID: String = "RBHDCuxbXabY4jitJWuW"
+    var myID: String = "RBHDCuxbXabY4jitJWuW"
     
     
 
@@ -21,7 +21,9 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        postArticle(user_id: userID, title: "title", tag: Tag.Gossiping.rawValue)
+//        createUser(userName: "Jo H.", userEmail: "myemail@mail.com")
+//
+//        postArticle(user_id: myID, title: "title", tag: Tag.Gossiping.rawValue)
 
         
         // Rewrite user info with ID
@@ -47,32 +49,7 @@ class ViewController: UIViewController {
 //                }
 //            }
 //        }
-        
-        
-        
-        // Update friends array in document
-//        let jo2Ref = db.collection("users").document("\(userID)")
-        
-        // Atomically add a new region to the "friends" array field.
-//        jo2Ref.updateData([
-//            "friends": FieldValue.arrayUnion([
-//                    [
-//                    "id": "token2",
-//                    "statusCode": 2
-//                    ]
-//                ])
-//            ])
-        
-        // Atomically remove a region from the "friends" array field.
-//        jo2Ref.updateData([
-//            "friends": FieldValue.arrayRemove([
-//                    [
-//                    "id": " YrVzf2PvU2ukDsTvQOxS",
-//                    "statusCode": 1
-//                    ]
-//                ])
-//            ])
-        
+
         
         
         // Get all documents in a collection
@@ -89,12 +66,68 @@ class ViewController: UIViewController {
         
     }
     
-    func sendFriendRequest() {
+    func seeMyFriendRequest(myID: String) {
+        let userRef = db.collection("users")
+        // Query my profile
         
+        
+        
+        // Query my friends status
+        userRef
+            .whereField("friends", arrayContains: "west_coast")
+        
+        // Get document data from particular user with ID
+        let docRef = db.collection("users").document("\(myID)")
+        
+        docRef.getDocument { (document, error) in
+            if let document = document, document.exists {
+                let dataDescription = document.data().map(String.init(describing:)) ?? "nil"
+                print("Document data: \(dataDescription)")
+            } else {
+                print("Document does not exist")
+            }
+        }
+
     }
     
-    func replyFriendRequest() {
+    func sendFriendRequest(fromID myID: String, toID friendID: String) {
+        // Update friends array in document
+        let jo2Ref = db.collection("users").document("\(friendID)")
         
+        // Atomically add a new region to the "friends" array field.
+        jo2Ref.updateData([
+            "friends": FieldValue.arrayUnion([
+                [
+                    "id": "\(myID)",
+                    "statusCode": 0
+                ]
+                ])
+            ])
+    }
+    
+    func replyFriendRequest(fromID myID: String, toID friendID: String, reply: Int) {
+        // Update friends array in document
+        let jo2Ref = db.collection("users").document("\(friendID)")
+        
+        // Atomically remove a region from the "friends" array field.
+        jo2Ref.updateData([
+            "friends": FieldValue.arrayRemove([
+                [
+                    "id": " \(myID)",
+                    "statusCode": 0
+                ]
+                ])
+            ])
+        
+        // Atomically add a new region to the "friends" array field.
+        jo2Ref.updateData([
+            "friends": FieldValue.arrayUnion([
+                [
+                    "id": "\(myID)",
+                    "statusCode": reply
+                ]
+                ])
+            ])
     }
     
     func createUser(userName: String, userEmail: String) {
