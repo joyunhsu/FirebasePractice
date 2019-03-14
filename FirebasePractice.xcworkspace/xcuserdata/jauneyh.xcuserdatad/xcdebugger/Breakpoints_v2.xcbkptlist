@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FirebasePractice/ViewController.swift"
-            timestampString = "574224081.23457"
+            timestampString = "574224898.1408989"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "173"
-            endingLineNumber = "173"
+            startingLineNumber = "199"
+            endingLineNumber = "199"
             landmarkName = "getAllArticles(_:)"
             landmarkType = "7">
          </BreakpointContent>

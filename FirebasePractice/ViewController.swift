@@ -19,6 +19,7 @@ class ViewController: UIViewController {
     var friendStatusCode: Int = 0 {
         didSet {
             userSearchResult.text = "Search Result: \(userName), \(self.friendStatus)"
+            friendRequestFrom.text = "Request from: jo, \(self.friendStatus)"
         }
     }
     
@@ -104,6 +105,28 @@ class ViewController: UIViewController {
     }
     
     
+    @IBAction func refreshFriendRequest(_ sender: UIButton) {
+        // Get document data from particular user with ID
+        let docRef = db.collection("users").document("\(friendID)")
+        
+        docRef.getDocument { (document, error) in
+            if let document = document, document.exists {
+                let dataDescription = document.data().map(String.init(describing:)) ?? "nil"
+                print("Document data: \(dataDescription)")
+                
+                let friends = document.get("friends") as! [[String: Any]]
+                let flatFriends = friends.flatMap { $0.values }
+                
+                print(flatFriends)
+                
+            } else {
+                print("Document does not exist")
+                
+            }
+        }
+    }
+    
+    
     @IBAction func acceptFriendRequest(_ sender: UIButton) {
         //        let friendID = "trI5rZzVNg5FtgQbr07G"
         let friendRef = db.collection("users").document("\(friendID)")
@@ -131,6 +154,8 @@ class ViewController: UIViewController {
                 ["id": "\(friendID)", "statusCode": 3]
                 ])
             ])
+        
+        self.friendStatusCode = 3
     }
     
     @IBAction func declineFriendRequeset(_ sender: UIButton) {
