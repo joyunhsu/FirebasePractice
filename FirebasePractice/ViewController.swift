@@ -186,6 +186,8 @@ class ViewController: UIViewController {
                 ])
             ])
         
+        self.friendStatusCode = 2
+        
     }
     
     @IBAction func getAllArticles(_ sender: UIButton) {
