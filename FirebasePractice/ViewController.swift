@@ -16,17 +16,41 @@ class ViewController: UIViewController {
     var myID: String = "RBHDCuxbXabY4jitJWuW" // user_name: jo
     var userName: String = ""
     var friendID: String = ""
-    var friendStatusCode: Int = 0 {
+    
+    var requestFromUserID: String = "" {
         didSet {
-            userSearchResult.text = "Search Result: \(userName), \(self.friendStatus)"
-            friendRequestFrom.text = "Request from: jo, \(self.friendStatus)"
+            friendRequestFrom.text = "Request form: \(requestFromUserID), \(self.receiveFriendStatus)"
         }
     }
     
-    var friendStatus: String {
-        switch friendStatusCode {
+    var requestFromUserName: String = ""
+    
+    var sendFriendStatusCode: Int = 0 {
+        didSet {
+            userSearchResult.text = "Search Result: \(userName), \(self.sendFriendStatus)"
+//            friendRequestFrom.text = "Request from: jo, \(self.friendStatus)"
+        }
+    }
+    
+    var receiveFriendStatusCode: Int = 0 {
+        didSet {
+            friendRequestFrom.text = "Request form: \(requestFromUserID), \(self.receiveFriendStatus)"
+        }
+    }
+    
+    var sendFriendStatus: String {
+        switch sendFriendStatusCode {
         case 0: return "待邀請"
         case 1: return "已邀請"
+        case 2: return "拒絕邀請"
+        default: return "接受邀請"
+        }
+    }
+    
+    var receiveFriendStatus: String {
+        switch receiveFriendStatusCode {
+        case 0: return "待邀請"
+        case 1: return "收到邀請"
         case 2: return "拒絕邀請"
         default: return "接受邀請"
         }
@@ -70,7 +94,7 @@ class ViewController: UIViewController {
 //                        }
                     }
                     
-                    self.userSearchResult.text = "Search Result: \(self.userName), \(self.friendStatus)"
+                    self.userSearchResult.text = "Search Result: \(self.userName), \(self.sendFriendStatus)"
                 }
         }
         
@@ -101,13 +125,14 @@ class ViewController: UIViewController {
                 ])
             ])
         
-        self.friendStatusCode = 1
+        self.sendFriendStatusCode = 1
     }
     
     
+    // Receiving Request
     @IBAction func refreshFriendRequest(_ sender: UIButton) {
         // Get document data from particular user with ID
-        let docRef = db.collection("users").document("\(friendID)")
+        let docRef = db.collection("users").document("\(myID)")
         
         docRef.getDocument { (document, error) in
             if let document = document, document.exists {
@@ -115,21 +140,31 @@ class ViewController: UIViewController {
                 print("Document data: \(dataDescription)")
                 
                 let friends = document.get("friends") as! [[String: Any]]
-                let flatFriends = friends.flatMap { $0.values }
-                
+                let flatFriends = friends.flatMap { $0 }
                 print(flatFriends)
                 
+                for i in flatFriends {
+                    if let key = i.key as? String, let value = i.value as? String, key == "id" {
+                        self.requestFromUserID = value
+                        print("id: \(value)")
+                    } else {
+                        self.receiveFriendStatusCode = i.value as! Int
+                        print("statusCode: \(i.value)")
+                    }
+                }
+                
+
             } else {
                 print("Document does not exist")
-                
             }
         }
+        
+        
     }
-    
     
     @IBAction func acceptFriendRequest(_ sender: UIButton) {
         //        let friendID = "trI5rZzVNg5FtgQbr07G"
-        let friendRef = db.collection("users").document("\(friendID)")
+        let friendRef = db.collection("users").document("\(requestFromUserID)")
         friendRef.updateData([
             "friends": FieldValue.arrayRemove([
                 ["id": "\(myID)", "statusCode": 1]
@@ -145,22 +180,22 @@ class ViewController: UIViewController {
         let myRef = db.collection("users").document("\(myID)")
         myRef.updateData([
             "friends": FieldValue.arrayRemove([
-                ["id": "\(friendID)", "statusCode": 1]
+                ["id": "\(requestFromUserID)", "statusCode": 1]
                 ])
             ])
         
         myRef.updateData([
             "friends": FieldValue.arrayUnion([
-                ["id": "\(friendID)", "statusCode": 3]
+                ["id": "\(requestFromUserID)", "statusCode": 3]
                 ])
             ])
         
-        self.friendStatusCode = 3
+        self.receiveFriendStatusCode = 3
     }
     
     @IBAction func declineFriendRequeset(_ sender: UIButton) {
         //        let friendID = "trI5rZzVNg5FtgQbr07G"
-        let friendRef = db.collection("users").document("\(friendID)")
+        let friendRef = db.collection("users").document("\(requestFromUserID)")
         friendRef.updateData([
             "friends": FieldValue.arrayRemove([
                 ["id": "\(myID)", "statusCode": 1]
@@ -176,31 +211,18 @@ class ViewController: UIViewController {
         let myRef = db.collection("users").document("\(myID)")
         myRef.updateData([
             "friends": FieldValue.arrayRemove([
-                ["id": "\(friendID)", "statusCode": 1]
+                ["id": "\(requestFromUserID)", "statusCode": 1]
                 ])
             ])
         
         myRef.updateData([
             "friends": FieldValue.arrayUnion([
-                ["id": "\(friendID)", "statusCode": 2]
+                ["id": "\(requestFromUserID)", "statusCode": 2]
                 ])
             ])
         
-        self.friendStatusCode = 2
+        self.sendFriendStatusCode = 2
         
-    }
-    
-    @IBAction func getAllArticles(_ sender: UIButton) {
-        // Get all documents in a collection
-        db.collection("article").getDocuments() { (querySnapshot, err) in
-            if let err = err {
-                print("Error getting documents: \(err)")
-            } else {
-                for document in querySnapshot!.documents {
-                    print("\(document.documentID) => \(document.data())")
-                }
-            }
-        }
     }
     
     @IBAction func postArticle(_ sender: UIButton) {
@@ -225,9 +247,69 @@ class ViewController: UIViewController {
                 print("Successfully add article, ID: \(self.articleRef!.documentID)")
             }
         }
-        
     }
     
+    @IBAction func getAllArticles(_ sender: UIButton) {
+        // Get all documents in a collection
+        db.collection("article").getDocuments() { (querySnapshot, err) in
+            if let err = err {
+                print("Error getting documents: \(err)")
+            } else {
+                for document in querySnapshot!.documents {
+                    print("\(document.documentID) => \(document.data())")
+                }
+            }
+        }
+    }
+    
+    @IBAction func getArticlesByTag(_ sender: UIButton) {
+        let tag = Tag.Joke.rawValue
+        let articleRef = db.collection("article")
+        
+        // Create a query against the collection.
+        articleRef.whereField("article_tag", isEqualTo: "\(tag)").getDocuments { (querySnapshot, err) in
+            if let err = err {
+                print("Error getting documents: \(err)")
+            } else {
+                for document in querySnapshot!.documents {
+                    print("\(document.documentID) => \(document.data())")
+                }
+            }
+        }
+    }
+    
+    @IBAction func getArticlesByUser(_ sender: UIButton) {
+        let user_id = ""
+        db.collection("article").whereField("author", isEqualTo: "\(user_id)")
+            .getDocuments() { (querySnapshot, err) in
+                if let err = err {
+                    print("Error getting documents: \(err)")
+                } else {
+                    for document in querySnapshot!.documents {
+                        print("\(document.documentID) => \(document.data())")
+                    }
+                }
+        }
+    }
+    
+    @IBAction func getArticlesByUserAndTag(_ sender: UIButton) {
+        let user_id: String = myID
+        let tag = Tag.Joke.rawValue
+        let articleRef = db.collection("article")
+        
+        // Create a query against the collection.
+        articleRef
+            .whereField("author", isEqualTo: "\(user_id)")
+            .whereField("article_tag", isEqualTo: "\(tag)").getDocuments { (querySnapshot, err) in
+                if let err = err {
+                    print("Error getting documents: \(err)")
+                } else {
+                    for document in querySnapshot!.documents {
+                        print("\(document.documentID) => \(document.data())")
+                    }
+                }
+        }
+    }
     
 
     override func viewDidLoad() {

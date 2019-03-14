@@ -6,16 +6,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "No"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FirebasePractice/ViewController.swift"
-            timestampString = "574225199.7250659"
+            timestampString = "574233938.162715"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "200"
-            endingLineNumber = "200"
-            landmarkName = "getAllArticles(_:)"
+            startingLineNumber = "148"
+            endingLineNumber = "148"
+            landmarkName = "refreshFriendRequest(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
