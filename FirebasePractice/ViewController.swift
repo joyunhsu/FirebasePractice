@@ -14,6 +14,10 @@ class ViewController: UIViewController {
     var ref: DocumentReference? = nil
     var articleRef: DocumentReference? = nil
     var myID: String = "RBHDCuxbXabY4jitJWuW"
+    var friendID: String = ""
+    var friendStatusCode: Int = 0
+    
+    
     @IBOutlet weak var userSearchResult: UILabel!
     
     @IBAction func searchUserByEmail(_ sender: UIButton) {
@@ -32,10 +36,13 @@ class ViewController: UIViewController {
                         let user_name = document.get("user_name") as! String
                         userName = user_name
                         print(user_name)
-                        let friends = document.get("friends") as! [[String: Any]]
-                        let flatFriends = friends.flatMap { $0.values }
                         
-                        print(flatFriends)
+                        self.friendID = document.documentID
+                        
+//                        let friends = document.get("friends") as! [[String: Any]]
+//                        let flatFriends = friends.flatMap { $0.values }
+//
+//                        print(flatFriends)
                         
 //                        if let friendsInfo = document.data() ["friends"] as? [String: Any] {
 //                            let friends = friendsInfo.map { $0.value }
@@ -93,7 +100,7 @@ class ViewController: UIViewController {
     
     @IBAction func sendFriendRequest(_ sender: UIButton) {
         // Update friends array in document
-        let friendID = "trI5rZzVNg5FtgQbr07G"
+//        let friendID = "trI5rZzVNg5FtgQbr07G"
         let friendRef = db.collection("users").document("\(friendID)")
         
         // Atomically add a new region to the "friends" array field.
@@ -119,7 +126,7 @@ class ViewController: UIViewController {
     
     
     @IBAction func acceptFriendRequest(_ sender: UIButton) {
-        let friendID = "trI5rZzVNg5FtgQbr07G"
+//        let friendID = "trI5rZzVNg5FtgQbr07G"
         let friendRef = db.collection("users").document("\(friendID)")
         friendRef.updateData([
             "friends": FieldValue.arrayRemove([
@@ -148,7 +155,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func declineFriendRequeset(_ sender: UIButton) {
-        let friendID = "trI5rZzVNg5FtgQbr07G"
+//        let friendID = "trI5rZzVNg5FtgQbr07G"
         let friendRef = db.collection("users").document("\(friendID)")
         friendRef.updateData([
             "friends": FieldValue.arrayRemove([
