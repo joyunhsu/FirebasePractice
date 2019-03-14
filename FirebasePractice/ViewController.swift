@@ -15,6 +15,23 @@ class ViewController: UIViewController {
     var articleRef: DocumentReference? = nil
     var myID: String = "RBHDCuxbXabY4jitJWuW"
     
+    @IBAction func searchUserByEmail(_ sender: UIButton) {
+        let userRef = db.collection("users")
+        let userEmail = "myemail@mail.com"
+        
+        // Create a query against the collection.
+        userRef.whereField("user_email", isEqualTo: "\(userEmail)").getDocuments { (querySnapshot, err) in
+                if let err = err {
+                    print("Error getting documents: \(err)")
+                } else {
+                    for document in querySnapshot!.documents {
+                        print("\(document.documentID) => \(document.data())")
+                    }
+                }
+        }
+        
+    }
+    
     @IBAction func getAllArticles(_ sender: UIButton) {
         // Get all documents in a collection
         db.collection("article").getDocuments() { (querySnapshot, err) in
