@@ -19,6 +19,7 @@ class ViewController: UIViewController {
     @IBAction func searchUserByEmail(_ sender: UIButton) {
         let userRef = db.collection("users")
         let userEmail = "myemail@mail.com"
+        var userName: String = ""
         
         // Create a query against the collection.
         userRef.whereField("user_email", isEqualTo: "\(userEmail)").getDocuments { (querySnapshot, err) in
@@ -29,9 +30,24 @@ class ViewController: UIViewController {
                         print("\(document.documentID) => \(document.data())")
                         
                         let user_name = document.get("user_name") as! String
-                        let friends = document.get("friends") as? [[String: Any]]
-                        print(user_name, friends)
+                        userName = user_name
+                        print(user_name)
+                        let friends = document.get("friends") as! [[String: Any]]
+                        let flatFriends = friends.flatMap { $0.values }
+                        
+                        print(flatFriends)
+                        
+//                        if let friendsInfo = document.data() ["friends"] as? [String: Any] {
+//                            let friends = friendsInfo.map { $0.value }
+//                            for friend in friends {
+//                                guard let validFriend = friend as? Dictionary<String, Any> else { continue }
+//                                let id = validFriend["id"] as? String ?? ""
+//                                print(id)
+//                            }
+//                        }
                     }
+                    
+                    self.userSearchResult.text = "Search Result: \(userName)"
                 }
         }
         
