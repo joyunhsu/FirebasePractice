@@ -15,6 +15,130 @@ class ViewController: UIViewController {
     var articleRef: DocumentReference? = nil
     var myID: String = "RBHDCuxbXabY4jitJWuW"
     
+    @IBAction func getAllArticles(_ sender: UIButton) {
+        // Get all documents in a collection
+        db.collection("article").getDocuments() { (querySnapshot, err) in
+            if let err = err {
+                print("Error getting documents: \(err)")
+            } else {
+                for document in querySnapshot!.documents {
+                    print("\(document.documentID) => \(document.data())")
+                }
+            }
+        }
+    }
+    
+    @IBAction func postArticle(_ sender: UIButton) {
+        let timestamp = NSDate().timeIntervalSince1970
+        let myTimeInterval = TimeInterval(timestamp)
+        let time = NSDate(timeIntervalSince1970: TimeInterval(myTimeInterval))
+        
+        //         post article: add a new document in subcollection article
+        articleRef = db.collection("article").addDocument(data:
+            [
+                "article_content": "every other day",
+                //                "article_id": "byJo ",
+                "article_tag": "\(Tag.Joke.rawValue)",
+                "article_title": "Title it is",
+                "author": "\(myID)",
+                "created_time": time
+            ]
+        ) { err in
+            if let err = err {
+                print("Error adding document: \(err)")
+            } else {
+                print("Successfully add article, ID: \(self.articleRef!.documentID)")
+            }
+        }
+        
+    }
+    
+    @IBAction func sendFriendRequest(_ sender: UIButton) {
+        // Update friends array in document
+        let friendID = "trI5rZzVNg5FtgQbr07G"
+        let friendRef = db.collection("users").document("\(friendID)")
+        
+        // Atomically add a new region to the "friends" array field.
+        friendRef.updateData([
+            "friends": FieldValue.arrayUnion([
+                [
+                    "id": "\(myID)",
+                    "statusCode": 1
+                ]
+                ])
+            ])
+        
+        let myRef = db.collection("users").document("\(myID)")
+        myRef.updateData([
+            "friends": FieldValue.arrayUnion([
+                [
+                    "id": "\(friendID)",
+                    "statusCode": 1
+                ]
+                ])
+            ])
+    }
+    
+    
+    @IBAction func acceptFriendRequest(_ sender: UIButton) {
+        let friendID = "trI5rZzVNg5FtgQbr07G"
+        let friendRef = db.collection("users").document("\(friendID)")
+        friendRef.updateData([
+            "friends": FieldValue.arrayRemove([
+                ["id": "\(myID)", "statusCode": 1]
+                ])
+            ])
+        
+        friendRef.updateData([
+            "friends": FieldValue.arrayUnion([
+                ["id": "\(myID)", "statusCode": 3]
+                ])
+            ])
+        
+        let myRef = db.collection("users").document("\(myID)")
+        myRef.updateData([
+            "friends": FieldValue.arrayRemove([
+                ["id": "\(friendID)", "statusCode": 1]
+                ])
+            ])
+        
+        myRef.updateData([
+            "friends": FieldValue.arrayUnion([
+                ["id": "\(friendID)", "statusCode": 3]
+                ])
+            ])
+    }
+    
+    @IBAction func declineFriendRequeset(_ sender: UIButton) {
+        let friendID = "trI5rZzVNg5FtgQbr07G"
+        let friendRef = db.collection("users").document("\(friendID)")
+        friendRef.updateData([
+            "friends": FieldValue.arrayRemove([
+                ["id": "\(myID)", "statusCode": 1]
+                ])
+            ])
+        
+        friendRef.updateData([
+            "friends": FieldValue.arrayUnion([
+                ["id": "\(myID)", "statusCode": 4]
+                ])
+            ])
+        
+        let myRef = db.collection("users").document("\(myID)")
+        myRef.updateData([
+            "friends": FieldValue.arrayRemove([
+                ["id": "\(friendID)", "statusCode": 1]
+                ])
+            ])
+        
+        myRef.updateData([
+            "friends": FieldValue.arrayUnion([
+                ["id": "\(friendID)", "statusCode": 4]
+                ])
+            ])
+        
+    }
+    
     
 
     override func viewDidLoad() {
@@ -24,6 +148,11 @@ class ViewController: UIViewController {
 //        createUser(userName: "Jo H.", userEmail: "myemail@mail.com")
 //
 //        postArticle(user_id: myID, title: "title", tag: Tag.Gossiping.rawValue)
+        
+//        sendFriendRequest(fromID: myID, toID: "trI5rZzVNg5FtgQbr07G")
+        
+//        replyFriendRequest(fromID: myID, toID: "trI5rZzVNg5FtgQbr07G", reply: 3)
+
 
         
         // Rewrite user info with ID
@@ -41,19 +170,6 @@ class ViewController: UIViewController {
         
         // Get all document data from collection users
 //        db.collection("users").getDocuments() { (querySnapshot, err) in
-//            if let err = err {
-//                print("Error getting documents: \(err)")
-//            } else {
-//                for document in querySnapshot!.documents {
-//                    print("\(document.documentID) => \(document.data())")
-//                }
-//            }
-//        }
-
-        
-        
-        // Get all documents in a collection
-//        db.collection("article").getDocuments() { (querySnapshot, err) in
 //            if let err = err {
 //                print("Error getting documents: \(err)")
 //            } else {
@@ -92,14 +208,24 @@ class ViewController: UIViewController {
     
     func sendFriendRequest(fromID myID: String, toID friendID: String) {
         // Update friends array in document
-        let jo2Ref = db.collection("users").document("\(friendID)")
+        let friendRef = db.collection("users").document("\(friendID)")
         
         // Atomically add a new region to the "friends" array field.
-        jo2Ref.updateData([
+        friendRef.updateData([
             "friends": FieldValue.arrayUnion([
                 [
                     "id": "\(myID)",
-                    "statusCode": 0
+                    "statusCode": 1
+                ]
+                ])
+            ])
+        
+        let myRef = db.collection("users").document("\(myID)")
+        myRef.updateData([
+            "friends": FieldValue.arrayUnion([
+                [
+                    "id": "\(friendID)",
+                    "statusCode": 1
                 ]
                 ])
             ])
@@ -107,23 +233,41 @@ class ViewController: UIViewController {
     
     func replyFriendRequest(fromID myID: String, toID friendID: String, reply: Int) {
         // Update friends array in document
-        let jo2Ref = db.collection("users").document("\(friendID)")
+        let friendRef = db.collection("users").document("\(friendID)")
         
         // Atomically remove a region from the "friends" array field.
-        jo2Ref.updateData([
+        friendRef.updateData([
             "friends": FieldValue.arrayRemove([
                 [
-                    "id": " \(myID)",
-                    "statusCode": 0
+                    "id": "\(myID)",
+                    "statusCode": 1
                 ]
                 ])
             ])
         
-        // Atomically add a new region to the "friends" array field.
-        jo2Ref.updateData([
+        friendRef.updateData([
             "friends": FieldValue.arrayUnion([
                 [
                     "id": "\(myID)",
+                    "statusCode": reply
+                ]
+                ])
+            ])
+        
+        let myRef = db.collection("users").document("\(myID)")
+        myRef.updateData([
+            "friends": FieldValue.arrayRemove([
+                [
+                    "id": "\(friendID)",
+                    "statusCode": 1
+                ]
+                ])
+            ])
+        
+        myRef.updateData([
+            "friends": FieldValue.arrayUnion([
+                [
+                    "id": "\(friendID)",
                     "statusCode": reply
                 ]
                 ])
@@ -259,6 +403,7 @@ class ViewController: UIViewController {
         }
         
     }
+
 
 }
 
