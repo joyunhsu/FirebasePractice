@@ -41,7 +41,7 @@ class ViewController: UIViewController {
     var sendFriendStatus: String {
         switch sendFriendStatusCode {
         case 0: return "待邀請"
-        case 1: return "已邀請"
+        case 1: return "待接受"
         case 2: return "拒絕邀請"
         default: return "接受邀請"
         }
@@ -51,8 +51,8 @@ class ViewController: UIViewController {
         switch receiveFriendStatusCode {
         case 0: return "待邀請"
         case 1: return "收到邀請"
-        case 2: return "拒絕邀請"
-        default: return "接受邀請"
+        case 2: return "已拒絕邀請"
+        default: return "已接受邀請"
         }
     }
     
@@ -62,8 +62,7 @@ class ViewController: UIViewController {
     
     @IBAction func searchUserByEmail(_ sender: UIButton) {
         let userRef = db.collection("users")
-        let userEmail = "myemail@mail.com"
-//        var userName: String = ""
+        let userEmail = "1234@gmail.com"
         
         // Create a query against the collection.
         userRef.whereField("user_email", isEqualTo: "\(userEmail)").getDocuments { (querySnapshot, err) in
@@ -126,6 +125,36 @@ class ViewController: UIViewController {
             ])
         
         self.sendFriendStatusCode = 1
+    }
+    
+    @IBAction func refreshSentRequest(_ sender: UIButton) {
+        // Get document data from particular user with ID
+        let docRef = db.collection("users").document("\(myID)")
+        
+        docRef.getDocument { (document, error) in
+            if let document = document, document.exists {
+                let dataDescription = document.data().map(String.init(describing:)) ?? "nil"
+                print("Document data: \(dataDescription)")
+                
+                let friends = document.get("friends") as! [[String: Any]]
+                let flatFriends = friends.flatMap { $0 }
+                print(flatFriends)
+                
+                for i in flatFriends {
+                    if let key = i.key as? String, let value = i.value as? String, key == "id" {
+                        self.friendID = value
+                        print("id: \(value)")
+                    } else {
+                        self.sendFriendStatusCode = i.value as! Int
+                        print("statusCode: \(i.value)")
+                    }
+                }
+                
+                
+            } else {
+                print("Document does not exist")
+            }
+        }
     }
     
     

@@ -144,7 +144,7 @@
                                     <action selector="getArticlesByUser:" destination="BYZ-38-t0r" eventType="touchUpInside" id="JPk-vG-qaa"/>
                                 </connections>
                             </button>
-                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="249" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Friend's Name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="M7j-C7-6KK">
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="249" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Friend's ID" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="M7j-C7-6KK">
                                 <rect key="frame" x="16" y="502.5" width="275" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="aSY-UD-qdJ"/>
@@ -204,7 +204,7 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
-                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="eFu-bW-GC6">
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="ID" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="eFu-bW-GC6">
                                 <rect key="frame" x="16" y="544.5" width="130" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="130" id="gdD-28-Q8W"/>
@@ -219,6 +219,15 @@
                                 <state key="normal" title="Search"/>
                                 <connections>
                                     <action selector="getArticlesByUserAndTag:" destination="BYZ-38-t0r" eventType="touchUpInside" id="7zA-Cc-W9V"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="07U-J6-0hh">
+                                <rect key="frame" x="306" y="100" width="53" height="30"/>
+                                <state key="normal" title="Refresh">
+                                    <color key="titleColor" red="0.53333333329999999" green="0.53333333329999999" blue="0.53333333329999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="refreshSentRequest:" destination="BYZ-38-t0r" eventType="touchUpInside" id="FJe-Gz-qb0"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -239,6 +248,7 @@
                             <constraint firstItem="Scb-OW-cWW" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="12" id="GVM-tO-JXE"/>
                             <constraint firstItem="VXn-7N-Mrq" firstAttribute="leading" secondItem="M7j-C7-6KK" secondAttribute="trailing" constant="20" id="IaR-FC-B4Y"/>
                             <constraint firstItem="4qR-nf-rKk" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="JLZ-6w-6AG"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="07U-J6-0hh" secondAttribute="trailing" constant="16" id="JlN-o0-zbX"/>
                             <constraint firstItem="tAC-A7-NUP" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="Jwf-Qm-rsK"/>
                             <constraint firstItem="1uv-U9-PMd" firstAttribute="trailing" secondItem="M7j-C7-6KK" secondAttribute="trailing" id="KiQ-eJ-kXc"/>
                             <constraint firstItem="eHS-wZ-7mw" firstAttribute="top" secondItem="a3P-n0-Umq" secondAttribute="bottom" constant="12" id="Kk9-0c-OUf"/>
@@ -264,6 +274,7 @@
                             <constraint firstItem="fF1-Xf-t0Q" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="jCc-vQ-G2O"/>
                             <constraint firstItem="zFD-uJ-rLb" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="SBb-tU-aID" secondAttribute="trailing" constant="8" symbolic="YES" id="jwO-ej-shP"/>
                             <constraint firstItem="zFD-uJ-rLb" firstAttribute="top" secondItem="SBb-tU-aID" secondAttribute="top" id="kh5-dn-DTG"/>
+                            <constraint firstItem="07U-J6-0hh" firstAttribute="centerY" secondItem="bP4-Yz-jic" secondAttribute="centerY" id="kzt-eO-KEE"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="tAC-A7-NUP" secondAttribute="trailing" symbolic="YES" id="me2-2L-Ijh"/>
                             <constraint firstItem="lU4-nG-C1w" firstAttribute="top" secondItem="4qR-nf-rKk" secondAttribute="bottom" constant="8" id="nht-W3-qDH"/>
                             <constraint firstItem="a3P-n0-Umq" firstAttribute="top" secondItem="fF1-Xf-t0Q" secondAttribute="bottom" constant="12" id="o64-mH-ZT8"/>
