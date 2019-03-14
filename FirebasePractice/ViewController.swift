@@ -14,6 +14,7 @@ class ViewController: UIViewController {
     var ref: DocumentReference? = nil
     var articleRef: DocumentReference? = nil
     var myID: String = "RBHDCuxbXabY4jitJWuW"
+    @IBOutlet weak var userSearchResult: UILabel!
     
     @IBAction func searchUserByEmail(_ sender: UIButton) {
         let userRef = db.collection("users")
@@ -26,6 +27,10 @@ class ViewController: UIViewController {
                 } else {
                     for document in querySnapshot!.documents {
                         print("\(document.documentID) => \(document.data())")
+                        
+                        let user_name = document.get("user_name") as! String
+                        let friends = document.get("friends") as? [[String: Any]]
+                        print(user_name, friends)
                     }
                 }
         }
