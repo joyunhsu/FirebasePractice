@@ -13,17 +13,32 @@ class ViewController: UIViewController {
     lazy var db = Firestore.firestore()
     var ref: DocumentReference? = nil
     var articleRef: DocumentReference? = nil
-    var myID: String = "RBHDCuxbXabY4jitJWuW"
+    var myID: String = "RBHDCuxbXabY4jitJWuW" // user_name: jo
+    var userName: String = ""
     var friendID: String = ""
-    var friendStatusCode: Int = 0
+    var friendStatusCode: Int = 0 {
+        didSet {
+            userSearchResult.text = "Search Result: \(userName), \(self.friendStatus)"
+        }
+    }
+    
+    var friendStatus: String {
+        switch friendStatusCode {
+        case 0: return "待邀請"
+        case 1: return "已邀請"
+        case 2: return "拒絕邀請"
+        default: return "接受邀請"
+        }
+    }
     
     
     @IBOutlet weak var userSearchResult: UILabel!
+    @IBOutlet weak var friendRequestFrom: UILabel!
     
     @IBAction func searchUserByEmail(_ sender: UIButton) {
         let userRef = db.collection("users")
         let userEmail = "myemail@mail.com"
-        var userName: String = ""
+//        var userName: String = ""
         
         // Create a query against the collection.
         userRef.whereField("user_email", isEqualTo: "\(userEmail)").getDocuments { (querySnapshot, err) in
@@ -34,8 +49,8 @@ class ViewController: UIViewController {
                         print("\(document.documentID) => \(document.data())")
                         
                         let user_name = document.get("user_name") as! String
-                        userName = user_name
-                        print(user_name)
+                        self.userName = user_name
+                        print(self.userName)
                         
                         self.friendID = document.documentID
                         
@@ -54,9 +69,97 @@ class ViewController: UIViewController {
 //                        }
                     }
                     
-                    self.userSearchResult.text = "Search Result: \(userName)"
+                    self.userSearchResult.text = "Search Result: \(self.userName), \(self.friendStatus)"
                 }
         }
+        
+    }
+    
+    @IBAction func sendFriendRequest(_ sender: UIButton) {
+        // Update friends array in document
+        //        let friendID = "trI5rZzVNg5FtgQbr07G"
+        let friendRef = db.collection("users").document("\(friendID)")
+        
+        // Atomically add a new region to the "friends" array field.
+        friendRef.updateData([
+            "friends": FieldValue.arrayUnion([
+                [
+                    "id": "\(myID)",
+                    "statusCode": 1
+                ]
+                ])
+            ])
+        
+        let myRef = db.collection("users").document("\(myID)")
+        myRef.updateData([
+            "friends": FieldValue.arrayUnion([
+                [
+                    "id": "\(friendID)",
+                    "statusCode": 1
+                ]
+                ])
+            ])
+        
+        self.friendStatusCode = 1
+    }
+    
+    
+    @IBAction func acceptFriendRequest(_ sender: UIButton) {
+        //        let friendID = "trI5rZzVNg5FtgQbr07G"
+        let friendRef = db.collection("users").document("\(friendID)")
+        friendRef.updateData([
+            "friends": FieldValue.arrayRemove([
+                ["id": "\(myID)", "statusCode": 1]
+                ])
+            ])
+        
+        friendRef.updateData([
+            "friends": FieldValue.arrayUnion([
+                ["id": "\(myID)", "statusCode": 3]
+                ])
+            ])
+        
+        let myRef = db.collection("users").document("\(myID)")
+        myRef.updateData([
+            "friends": FieldValue.arrayRemove([
+                ["id": "\(friendID)", "statusCode": 1]
+                ])
+            ])
+        
+        myRef.updateData([
+            "friends": FieldValue.arrayUnion([
+                ["id": "\(friendID)", "statusCode": 3]
+                ])
+            ])
+    }
+    
+    @IBAction func declineFriendRequeset(_ sender: UIButton) {
+        //        let friendID = "trI5rZzVNg5FtgQbr07G"
+        let friendRef = db.collection("users").document("\(friendID)")
+        friendRef.updateData([
+            "friends": FieldValue.arrayRemove([
+                ["id": "\(myID)", "statusCode": 1]
+                ])
+            ])
+        
+        friendRef.updateData([
+            "friends": FieldValue.arrayUnion([
+                ["id": "\(myID)", "statusCode": 2]
+                ])
+            ])
+        
+        let myRef = db.collection("users").document("\(myID)")
+        myRef.updateData([
+            "friends": FieldValue.arrayRemove([
+                ["id": "\(friendID)", "statusCode": 1]
+                ])
+            ])
+        
+        myRef.updateData([
+            "friends": FieldValue.arrayUnion([
+                ["id": "\(friendID)", "statusCode": 2]
+                ])
+            ])
         
     }
     
@@ -95,92 +198,6 @@ class ViewController: UIViewController {
                 print("Successfully add article, ID: \(self.articleRef!.documentID)")
             }
         }
-        
-    }
-    
-    @IBAction func sendFriendRequest(_ sender: UIButton) {
-        // Update friends array in document
-//        let friendID = "trI5rZzVNg5FtgQbr07G"
-        let friendRef = db.collection("users").document("\(friendID)")
-        
-        // Atomically add a new region to the "friends" array field.
-        friendRef.updateData([
-            "friends": FieldValue.arrayUnion([
-                [
-                    "id": "\(myID)",
-                    "statusCode": 1
-                ]
-                ])
-            ])
-        
-        let myRef = db.collection("users").document("\(myID)")
-        myRef.updateData([
-            "friends": FieldValue.arrayUnion([
-                [
-                    "id": "\(friendID)",
-                    "statusCode": 1
-                ]
-                ])
-            ])
-    }
-    
-    
-    @IBAction func acceptFriendRequest(_ sender: UIButton) {
-//        let friendID = "trI5rZzVNg5FtgQbr07G"
-        let friendRef = db.collection("users").document("\(friendID)")
-        friendRef.updateData([
-            "friends": FieldValue.arrayRemove([
-                ["id": "\(myID)", "statusCode": 1]
-                ])
-            ])
-        
-        friendRef.updateData([
-            "friends": FieldValue.arrayUnion([
-                ["id": "\(myID)", "statusCode": 3]
-                ])
-            ])
-        
-        let myRef = db.collection("users").document("\(myID)")
-        myRef.updateData([
-            "friends": FieldValue.arrayRemove([
-                ["id": "\(friendID)", "statusCode": 1]
-                ])
-            ])
-        
-        myRef.updateData([
-            "friends": FieldValue.arrayUnion([
-                ["id": "\(friendID)", "statusCode": 3]
-                ])
-            ])
-    }
-    
-    @IBAction func declineFriendRequeset(_ sender: UIButton) {
-//        let friendID = "trI5rZzVNg5FtgQbr07G"
-        let friendRef = db.collection("users").document("\(friendID)")
-        friendRef.updateData([
-            "friends": FieldValue.arrayRemove([
-                ["id": "\(myID)", "statusCode": 1]
-                ])
-            ])
-        
-        friendRef.updateData([
-            "friends": FieldValue.arrayUnion([
-                ["id": "\(myID)", "statusCode": 4]
-                ])
-            ])
-        
-        let myRef = db.collection("users").document("\(myID)")
-        myRef.updateData([
-            "friends": FieldValue.arrayRemove([
-                ["id": "\(friendID)", "statusCode": 1]
-                ])
-            ])
-        
-        myRef.updateData([
-            "friends": FieldValue.arrayUnion([
-                ["id": "\(friendID)", "statusCode": 4]
-                ])
-            ])
         
     }
     
